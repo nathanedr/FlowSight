@@ -1,0 +1,9 @@
+torch
+ultralytics
+pillow
+kagglehub
+numpy
+matplotlib
+opencv-python
+albumentations
+psutil

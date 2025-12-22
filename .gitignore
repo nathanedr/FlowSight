@@ -1,0 +1,57 @@
+# Environnement Python / IDE
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+venv/
+env/
+.venv/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+dist/
+build/
+*.egg
+*.whl
+
+# Virtualenv / environment files
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing / tooling
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# System
+.DS_Store
+Thumbs.db
+
+# Données générées / modèles poids
+weights/
+
+# Résultats d'exécution
+runs/
+# fichier spécifique à supprimer/ignorer (double sécurité)
+runs/detect/count_inference/result_Road_traffic_cctv.mp4
+
+# Dossier data : ignorer tout sauf le script de dataset demandé
+data/*
+!data/dl_VisDrone_dataset.py
+!data/

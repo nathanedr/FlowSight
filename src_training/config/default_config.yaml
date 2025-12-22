@@ -1,0 +1,62 @@
+# Configuration pour l'entraînement YOLOv11 sur VisDrone.
+# Optimisé pour la détection de petits objets denses en vue aérienne.
+# Utilisation : Charger ce fichier et surcharger via CLI args si nécessaire.
+
+# --- Task & Mode ---
+task: detect
+mode: train
+
+# --- Model & Data ---
+model: yolo11s.pt       # Modèle de base (s/m/l/x). 's' pour itération rapide, 'l' pour prod.
+data: VisDrone.yaml     # Chemin par défaut, surchargé par l'argument --data_root du script
+
+# --- Training Hardware & Mechanics ---
+device: 0               # GPU ID. Utiliser 'cpu' ou '0,1' pour DDP.
+epochs: 10              # VisDrone nécessite une convergence longue (petits objets).
+patience: 5             # Early stopping (sur mAP50-95).
+batch: 8                # Conservateur pour imgsz=1024. Monter à 16/32 si VRAM > 24GB.
+imgsz: 1024             # CRITIQUE : 640px détruit les petits objets (<15px). 1024 ou 1280 recommandé.
+save: true              # Sauvegarder les checkpoints.
+save_period: 5          # Sauvegarder un checkpoint lourd tous les 5 epochs.
+cache: false            # True si RAM > 64GB (met tout le dataset en RAM).
+workers: 8              # Nombre de threads DataLoader.
+project: runs/visdrone
+name: train_experiment
+exist_ok: false         # Créer un nouveau dossier incrémental (exp1, exp2...)
+pretrained: true        # Transfer learning depuis COCO.
+optimizer: auto         # 'auto' sélectionne généralement SGD pour Detect, AdamW pour Classif.
+seed: 42                # Graine pour reproductibilité déterministe.
+deterministic: true     # Force les algos cuDNN déterministes (coût mineur en perf).
+single_cls: false       # Entraînement multi-classes.
+rect: false             # Rectangular training. False préfère le carrré (plus stable pour mosaic).
+cos_lr: true            # Cosine scheduler (baisse le LR doucement à la fin).
+close_mosaic: 20        # Désactive Mosaic sur les 20 dernières epochs pour affiner sur images réelles.
+resume: false           # Reprendre un entraînement interrompu.
+amp: true               # Automatic Mixed Precision (FP16). Gain VRAM et vitesse.
+fraction: 1.0           # Utiliser 100% du dataset.
+profile: false          # Profiling ONNX/TensorRT (pas pour le train).
+
+# --- Validation & Metrics ---
+val: true               # Valider à chaque epoch.
+split: val              # Split utilisé pour la validation.
+conf: 0.001             # Seuil confiance bas pour le calcul mAP.
+iou: 0.7                # Seuil NMS pour validation.
+max_det: 500            # CRITIQUE : VisDrone est très dense. 300 (défaut) est parfois insuffisant.
+plots: true             # Générer les courbes et images de batchs.
+
+# --- Data Augmentation (Tuned for Aerial View) ---
+# Note : Les augmentations géométriques aident le modèle à généraliser les échelles et orientations.
+
+hsv_h: 0.015            # Hue: Variation légère de teinte.
+hsv_s: 0.7              # Saturation: Gérer les différences soleil/nuage.
+hsv_v: 0.4              # Value: Gérer les ombres portées fortes.
+degrees: 0.0            # Rotation: 0.0 car les objets suivent généralement la gravité/routes.
+translate: 0.1          # Translation: +/- 10%.
+scale: 0.5              # Scale: CRITIQUE. +/- 50% pour simuler différentes altitudes de drone.
+shear: 0.0              # Cisaillement: Peu utile en vue aérienne zénithale.
+perspective: 0.0        # Perspective: 0.0.
+flipud: 0.0             # Flip Up-Down: STRICTEMENT 0.0 (Voitures/Piétons jamais à l'envers).
+fliplr: 0.5             # Flip Left-Right: 0.5 (Symétrie naturelle).
+mosaic: 1.0             # Mosaic: 1.0 (Indispensable pour petits objets et contexte).
+mixup: 0.15             # MixUp: Mélange d'images pour robustesse aux occlusions.
+copy_paste: 0.0         # Copy-Paste: Plus utile pour la segmentation instance.
