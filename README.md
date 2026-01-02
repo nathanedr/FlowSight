@@ -1,4 +1,4 @@
-# Système de Perception de Trafic Urbain (VisDrone)
+# Système de Perception de Trafic Urbain
 ### Phase 1 : Pipeline d'Entraînement & Data Intelligence
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python)
